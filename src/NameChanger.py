@@ -7,7 +7,7 @@ def snake_to_camel(line: str) -> str:
     new_line = [] # a list of words in the original string, with all snake_case names replaced with camelCase
     for i in line.split(' '):
         # check if the word is snake_case, and replace with it camelCase if so
-        if re.match('[A-z0-9(\'"[.]*([a-z0-9]+_)+[a-z0-9]+[(\'")[\],A-z0-9.]*', i):
+        if re.match('\\b[a-z]+_[a-z_]+\\b', i):
             word_list = i.split('_')
             camel = word_list[0] + ''.join(map(lambda x: x.capitalize(), word_list[1:]))
             new_line.append(camel)
@@ -20,7 +20,7 @@ def camel_to_snake(line: str) -> str:
     new_line = [] # a list of words in the original string, with all camelCase names replaced with snake_case
     for i in line.split(' '):
         # check if the word is camelCase, and replace with it snake if so
-        if re.match('[A-z0-9(\'"[.]*[a-z]+([A-Z][a-z0-9]+)+[(\'")[\],A-z0-9.]*', i):
+        if re.match('\\b[a-z]+[A-Z][a-zA-Z]*\\b', i):
             # split the camelCase word into it's component words (capital letters serve as delimiters and have their own index)
             split_name = re.split('([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', i)
             # append all all capital letters to their respective words, and make them lowercase

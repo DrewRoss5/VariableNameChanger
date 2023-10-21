@@ -2,38 +2,50 @@ import sys
 import os
 import re 
 
-# given a string of text, replace all instances of snake_case naming with camelCase
-def snake_to_camel(line: str) -> str:
-    new_line = [] # a list of words in the original string, with all snake_case names replaced with camelCase
-    for i in line.split(' '):
-        # check if the word is snake_case, and replace with it camelCase if so
-        if re.match('\\b[a-z]+_[a-z_]+\\b', i):
-            word_list = i.split('_')
-            camel = word_list[0] + ''.join(map(lambda x: x.capitalize(), word_list[1:]))
-            new_line.append(camel)
-        else:
-            new_line.append(i)
-    return ' '.join(new_line)
 
-# given a string of text, replace all instances of camelCase naming with snake_case 
-def camel_to_snake(line: str) -> str:
-    new_line = [] # a list of words in the original string, with all camelCase names replaced with snake_case
-    for i in line.split(' '):
-        # check if the word is camelCase, and replace with it snake if so
-        if re.match('\\b[a-z]+[A-Z][a-zA-Z]*\\b', i):
-            # split the camelCase word into it's component words (capital letters serve as delimiters and have their own index)
-            split_name = re.split('([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', i)
-            # append all all capital letters to their respective words, and make them lowercase
-            word_list = [split_name[0]]
-            for i in range(1, len(split_name)):
-                # check if the index is a word or a capital letter (all words have an even numbered index)
-                if i % 2 == 0:
-                    word_list.append(split_name[i-1].lower()+split_name[i])
-            # convert the list of words to a snake_case name, and append it to the new line
-            new_line.append('_'.join(word_list))
+# regex constants
+
+CAMEL_REGEX = '\\b[a-z]+[A-Z][a-zA-Z]*\\b'
+
+# checks if a string contains snake_case names, and returns its component words if so
+def parse_snake(string: str):
+    if re.match('\\b[a-z]+_[a-z_]+\\b', string):
+        return string.split('_')
+    else:
+        return None
+
+# checks if a string contains camelCase names and returns its component words if so
+def parse_camel(string: str):
+    if re.match('\\b[a-z]+[A-Z][a-zA-Z]*\\b', string):
+        split_name = re.split('([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', string)
+        word_list = [split_name[0]]
+        for i in range(1, len(split_name)):
+            # check if the index is a word or a capital letter (all words have an even numbered index)
+            if i % 2 == 0:
+                word_list.append(split_name[i-1].lower()+split_name[i])
+        return word_list
+    else: 
+        return None
+
+# takes a list of words and creates a camelCase name out of them
+def generate_camel(word_list: list[str]):
+    return word_list[0].lower() + ''.join(map(lambda x: x.capitalize(), word_list[1:]))
+
+# takes a list of words and creates a snake_case name out of them
+def generate_snake(word_list: list[str]):
+    return '_'.join(map(str.lower, word_list))
+
+# replaces all instances of a particular naming convention with another in a given string
+def replace_names(string: str, name_parser: 'function', name_gen: 'function'):
+    word_list = []
+    for i in string.split(' '):
+        words = name_parser(i)
+        if words:
+            word_list.append(name_gen(words))
         else:
-            new_line.append(i)
-    return ' '.join(new_line)
+            word_list.append(i)
+
+    return ' '.join(word_list)
 
 # ensure a file was provided
 if len(sys.argv) < 3:
@@ -42,23 +54,27 @@ if len(sys.argv) < 3:
 # get the user's intended function
 match sys.argv[1]:
     case 's2c':
-        replacement_function = snake_to_camel
+        name_parser = parse_snake
+        name_gen = generate_camel
     case 'c2s':
-        replacement_function = camel_to_snake
+        name_parser = parse_camel
+        name_gen = generate_snake
     case _:
         print('Invalid opperation. Must be:\ns2c: snake_case to camelCase\nc2s: camelCase to snake_case')
-
-
-for file_path in sys.argv[2:]:
-    # ensure the provided file exists
-    if not os.path.exists(file_path):
-        print('The provided file was not found')
         sys.exit(1)
-    # read the file's original lines
-    with open(file_path, 'r') as f:
+
+# run the specified parser and name generator to replace names in the provided file(s)
+for i in sys.argv[2:]:
+    if not os.path.exists(i):
+        print(f'The file "{i}" could not be found.' )
+        continue
+    # read the file and replace names 
+    with open(i) as f:
+        # create an array of lines from the file
         lines = f.read().split('\n')
-    # run the replacement function on each line of the file, and overwrite the file with the converted lines
-    lines = list(map(replacement_function, lines))
-    with open(file_path, 'w') as f:
-        f.write('\n'.join(lines))
-    print(f'All names converted in "{file_path}"')
+    # run the replacement function for each line, and write the result of each to output to be written to the file
+    output = '\n'.join(map(lambda l: replace_names(l, name_parser, name_gen), lines))
+    # overwrite the file with it's new contents
+    with open(i, 'w') as f:
+        f.write(output)
+    print(f'All names have been updated in "{i}"')

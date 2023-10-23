@@ -4,19 +4,19 @@ import re
 
 
 # regex constants
-
 CAMEL_REGEX = '\\b[a-z]+[A-Z][a-zA-Z]*\\b'
+SNAKE_REGEX = '\\b[a-z]+_[a-z_]+\\b'
 
 # checks if a string contains snake_case names, and returns its component words if so
 def parse_snake(string: str):
-    if re.match('\\b[a-z]+_[a-z_]+\\b', string):
+    if re.match(SNAKE_REGEX, string):
         return string.split('_')
     else:
         return None
 
 # checks if a string contains camelCase names and returns its component words if so
 def parse_camel(string: str):
-    if re.match('\\b[a-z]+[A-Z][a-zA-Z]*\\b', string):
+    if re.match(CAMEL_REGEX, string):
         split_name = re.split('([ABCDEFGHIJKLMNOPQRSTUVWXYZ])', string)
         word_list = [split_name[0]]
         for i in range(1, len(split_name)):
@@ -78,3 +78,5 @@ for i in sys.argv[2:]:
     with open(i, 'w') as f:
         f.write(output)
     print(f'All names have been updated in "{i}"')
+        
+

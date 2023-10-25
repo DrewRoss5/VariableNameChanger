@@ -12,8 +12,24 @@ There are currently two opperations that this program can be run with
     Converts all snake_case strings in the file(s) to camelCase ones.
   </li>
   <li>
+    <b>Snake to Pascal (<code>s2p</code>):</b>
+    Converts all snake_case strings in the file(s) to PascalCase ones.
+  </li>
+  <li>
     <b> Camel to Snake (<code>c2s</code>):</b>
     Converts all camelCase strings in the file(s) to snake_case ones.
+  </li>
+  <li>
+    <b>Camel to Pascal(<code>c2p</code>):</b>
+    Converts all camelCase strings in the file(s) to PascalCase ones.
+  </li>
+  <li>
+    <b>Pascal to Camel (<code>p2c</code>):</b>
+    Converts all PascalCase strings in the file(s) to camelCase ones.
+  </li>
+  <li>
+    <b> Pascal to Snake (<code>p2s</code>):</b>
+    Converts all PascalCase strings in the file(s) to snake_case ones.
   </li>
 </ul>
 
@@ -22,6 +38,5 @@ The path(s) of file(s) to have names converted, file paths must be either an abs
 
 # Roadmap
 <ul>
-  <li>Add Support for PascalCase</li>
   <li>Find and correct bugs</li>
 </ul>
